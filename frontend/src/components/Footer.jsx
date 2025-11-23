@@ -1,9 +1,12 @@
 export default function Footer() {
   return (
-    <footer className="mt-16 border-t">
-      <div className="max-w-6xl mx-auto px-4 py-6 text-sm text-gray-600">
-        © 2023 WorkConnect Albania. All rights reserved.
-      </div>
-    </footer>
+      <footer className="bg-gray-900 text-gray-300 text-center py-6">
+        <p>
+          © {new Date().getFullYear()}{" "}
+          <span className="font-semibold text-white">WorkConnect ALBANIA</span>. All rights reserved.
+        </p>
+      </footer>
+    
   );
 }
+

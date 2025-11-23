@@ -1,37 +1,38 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { api, attachTokenInterceptor } from '../api/axios';
+// src/context/AuthContext.jsx
+import { createContext, useContext, useState } from "react";
+import axios from "axios";
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
-  const getToken = () => accessToken;
 
-  useEffect(() => {
-    attachTokenInterceptor(getToken, async (token) => setAccessToken(token));
-  }, []);
-
-  const register = async (payload) => {
-    const { data } = await api.post('/auth/register', payload);
-    setUser(data.user);
-    setAccessToken(data.accessToken);
+  const login = async ({ email, password }) => {
+    const res = await axios.post("/api/auth/login", { email, password });
+    setUser(res.data.user);
   };
 
-  const login = async (payload) => {
-    const { data } = await api.post('/auth/login', payload);
-    setUser(data.user);
-    setAccessToken(data.accessToken);
+  const register = async ({ name, email, password }) => {
+    const res = await axios.post("/api/auth/register", { name, email, password });
+    setUser(res.data.user);
   };
 
   const logout = async () => {
-    await api.post('/auth/logout');
+    await axios.post("/api/auth/logout");
     setUser(null);
-    setAccessToken(null);
   };
 
-  const value = { user, accessToken, register, login, logout };
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+  // ✅ Reset password via backend
+  const resetPassword = async (email) => {
+    await axios.post("/api/auth/reset-password", { email });
+    alert("Password reset instructions sent to your email.");
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, register, logout, resetPassword }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
 
 export const useAuth = () => useContext(AuthContext);

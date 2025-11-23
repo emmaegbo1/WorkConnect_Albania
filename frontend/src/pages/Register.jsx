@@ -1,44 +1,141 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
   const { register } = useAuth();
   const nav = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
 
   const submit = async (e) => {
     e.preventDefault();
     await register(form);
-    nav('/');
+    nav("/");
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-10">
-      <h2 className="text-2xl font-semibold mb-4">Register</h2>
-      <form onSubmit={submit} className="grid gap-4">
-        <input
-          className="border rounded px-3 py-2"
-          placeholder="Full name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
-        <input
-          className="border rounded px-3 py-2"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
-        <input
-          className="border rounded px-3 py-2"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
-        <button className="bg-primary text-white px-4 py-2 rounded">Create account</button>
-      </form>
+    <div className="pt-24 bg-gray-50 min-h-screen px-6">
+      <section className="max-w-6xl mx-auto text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+          Create Your <span className="text-red-600">WorkConnect ALBANIA</span> Account
+        </h2>
+        <p className="max-w-2xl mx-auto text-lg text-gray-700 leading-relaxed mb-12">
+          Join our community of global talent and access trusted opportunities in Albania.
+        </p>
+
+        {/* Register Form */}
+        <form onSubmit={submit} className="grid gap-4 max-w-md mx-auto text-left">
+          <input
+            type="text"
+            className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Full name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
+          />
+          <input
+            type="email"
+            className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            required
+          />
+          <input
+            type="password"
+            className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+            placeholder="Password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            required
+          />
+          <button
+            type="submit"
+            className="bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition"
+          >
+            Create Account
+          </button>
+        </form>
+
+        {/* Switch to Login */}
+        <p className="text-center mt-6 text-gray-600">
+          Already have an account?{" "}
+          <Link to="/login" className="text-red-600 hover:underline">
+            Login here
+          </Link>
+        </p>
+      </section>
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+// import { useState } from "react";
+// import { useAuth } from "../context/AuthContext";
+// import { useNavigate } from "react-router-dom";
+
+// export default function Register() {
+//   const { register } = useAuth();
+//   const nav = useNavigate();
+//   const [form, setForm] = useState({ name: "", email: "", password: "" });
+
+//   const submit = async (e) => {
+//     e.preventDefault();
+//     await register(form);
+//     nav("/");
+//   };
+
+//   return (
+//     <div className="pt-24 bg-gray-50 min-h-screen px-6">
+//       <section className="max-w-6xl mx-auto text-center">
+//         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+//           Create Your <span className="text-red-600">WorkConnect ALBANIA</span> Account
+//         </h2>
+//         <p className="max-w-2xl mx-auto text-lg text-gray-700 leading-relaxed mb-12">
+//           Join our community of global talent and access trusted opportunities in Albania.
+//         </p>
+
+//         {/* Register Form */}
+//         <form onSubmit={submit} className="grid gap-4 max-w-md mx-auto text-left">
+//           <input
+//             type="text"
+//             className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+//             placeholder="Full name"
+//             value={form.name}
+//             onChange={(e) => setForm({ ...form, name: e.target.value })}
+//             required
+//           />
+//           <input
+//             type="email"
+//             className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+//             placeholder="Email"
+//             value={form.email}
+//             onChange={(e) => setForm({ ...form, email: e.target.value })}
+//             required
+//           />
+//           <input
+//             type="password"
+//             className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+//             placeholder="Password"
+//             value={form.password}
+//             onChange={(e) => setForm({ ...form, password: e.target.value })}
+//             required
+//           />
+//           <button
+//             type="submit"
+//             className="bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition"
+//           >
+//             Create Account
+//           </button>
+//         </form>
+//       </section>
+//     </div>
+//   );
+// }
