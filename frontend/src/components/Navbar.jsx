@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -9,24 +10,11 @@ export default function Navbar() {
 
   const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/jobs", label: "Jobs" }, // ✅ Added Jobs link
+    { to: "/jobs", label: "Jobs" },
     { to: "/services", label: "Services" },
     { to: "/about", label: "About Us" },
     { to: "/contact", label: "Contact" },
   ];
-
-  const roleLinks = {
-    recruiter: [
-      { to: "/dashboard", label: "Dashboard" },
-      { to: "/jobs/post", label: "Post a Job" }, // ✅ fixed route
-      { to: "/manage-jobs", label: "Manage Jobs" }, // ✅ aligned with App.jsx
-    ],
-    admin: [
-      { to: "/admin", label: "Admin Panel" },
-      { to: "/users", label: "User Management" },
-      { to: "/reports", label: "Reports" },
-    ],
-  };
 
   return (
     <header className="bg-white shadow-md fixed w-full top-0 z-50 border-b">
@@ -66,6 +54,7 @@ export default function Navbar() {
             </>
           ) : (
             <div className="relative">
+              {/* Greeting / Avatar toggle */}
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center gap-2 focus:outline-none"
@@ -74,30 +63,67 @@ export default function Navbar() {
                   <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full border" />
                 ) : (
                   <div className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600 text-white font-bold">
-                    {user.username?.charAt(0).toUpperCase()}
+                    {user.name?.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-gray-700 font-medium">{user.username}</span>
+                <span className="text-gray-700 font-medium">
+                  Welcome, {user.name} ({user.role})
+                </span>
+                <svg
+                  className={`w-4 h-4 transform transition ${dropdownOpen ? "rotate-180" : ""}`}
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
 
+              {/* Dropdown menu */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 z-50">
-                  {(roleLinks[user.role] || []).map((link) => (
-                    <NavLink
-                      key={link.to}
-                      to={link.to}
-                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-red-600 transition"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      {link.label}
+                <div className="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg py-2 z-50">
+                  <NavLink to="/profile" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                    My Profile
+                  </NavLink>
+                  <NavLink to="/settings" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                    Settings
+                  </NavLink>
+
+                  {user.role === "candidate" && (
+                    <NavLink to="/jobs" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                      Apply
                     </NavLink>
-                  ))}
+                  )}
+
+                  {(user.role === "recruiter" || user.role === "admin") && (
+                    <>
+                      <NavLink to="/dashboard" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                        Dashboard
+                      </NavLink>
+                      <NavLink to="/jobs/post" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                        Post Job
+                      </NavLink>
+                    </>
+                  )}
+
+                  {user.role === "admin" && (
+                    <>
+                      <NavLink to="/admin/manage-jobs" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                        Manage Jobs
+                      </NavLink>
+                      <NavLink to="/admin/reports" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                        Reports
+                      </NavLink>
+                      <NavLink to="/admin/users" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                        Users
+                      </NavLink>
+                    </>
+                  )}
+
                   <button
                     onClick={() => {
                       logout();
                       setDropdownOpen(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-red-600 transition"
+                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition"
                   >
                     Logout
                   </button>
@@ -133,40 +159,60 @@ export default function Navbar() {
 
             {user ? (
               <>
-                {(roleLinks[user.role] || []).map((link) => (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    className="block text-gray-700 hover:text-red-600 transition"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {link.label}
+                <NavLink to="/profile" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                  My Profile
+                </NavLink>
+                <NavLink to="/settings" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                  Settings
+                </NavLink>
+
+                {user.role === "candidate" && (
+                  <NavLink to="/jobs" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                    Apply
                   </NavLink>
-                ))}
+                )}
+
+                {(user.role === "recruiter" || user.role === "admin") && (
+                  <>
+                    <NavLink to="/dashboard" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                      Dashboard
+                    </NavLink>
+                    <NavLink to="/jobs/post" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                      Post Job
+                    </NavLink>
+                  </>
+                )}
+
+                {user.role === "admin" && (
+                  <>
+                    <NavLink to="/admin/manage-jobs" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                      Manage Jobs
+                    </NavLink>
+                    <NavLink to="/admin/reports" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                      Reports
+                    </NavLink>
+                    <NavLink to="/admin/users" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                      Users
+                    </NavLink>
+                  </>
+                )}
+
                 <button
                   onClick={() => {
                     logout();
                     setIsOpen(false);
                   }}
-                  className="block w-full text-left text-gray-700 hover:text-red-600 transition"
+                  className="block w-full text-left text-red-600 hover:bg-gray-100 transition"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <NavLink
-                  to="/login"
-                  className="block text-gray-700 hover:text-red-600 transition"
-                  onClick={() => setIsOpen(false)}
-                >
+                <NavLink to="/login" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
                   Login
                 </NavLink>
-                <NavLink
-                  to="/register"
-                  className="block bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition"
-                  onClick={() => setIsOpen(false)}
-                >
+                <NavLink to="/register" className="block bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition" onClick={() => setIsOpen(false)}>
                   Register
                 </NavLink>
               </>
@@ -176,7 +222,199 @@ export default function Navbar() {
       )}
     </header>
   );
-}
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState } from "react";
+// import { Link, NavLink } from "react-router-dom";
+// import { useAuth } from "../context/AuthContext";
+
+// export default function Navbar() {
+//   const { user, logout } = useAuth();
+//   const [isOpen, setIsOpen] = useState(false);
+//   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+//   const navLinks = [
+//     { to: "/", label: "Home" },
+//     { to: "/jobs", label: "Jobs" }, // ✅ Added Jobs link
+//     { to: "/services", label: "Services" },
+//     { to: "/about", label: "About Us" },
+//     { to: "/contact", label: "Contact" },
+//   ];
+
+//   const roleLinks = {
+//     recruiter: [
+//       { to: "/dashboard", label: "Dashboard" },
+//       { to: "/jobs/post", label: "Post a Job" }, // ✅ fixed route
+//       { to: "/manage-jobs", label: "Manage Jobs" }, // ✅ aligned with App.jsx
+//     ],
+//     admin: [
+//       { to: "/admin", label: "Admin Panel" },
+//       { to: "/users", label: "User Management" },
+//       { to: "/reports", label: "Reports" },
+//     ],
+//   };
+
+//   return (
+//     <header className="bg-white shadow-md fixed w-full top-0 z-50 border-b">
+//       <nav className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+//         {/* Logo */}
+//         <Link to="/" className="font-bold text-2xl text-gray-900">
+//           WorkConnect <span className="text-red-600">ALBANIA</span>
+//         </Link>
+
+//         {/* Desktop Navigation */}
+//         <div className="hidden md:flex items-center gap-8">
+//           {navLinks.map((link) => (
+//             <NavLink
+//               key={link.to}
+//               to={link.to}
+//               className={({ isActive }) =>
+//                 isActive
+//                   ? "text-red-600 font-semibold border-b-2 border-red-600 pb-1"
+//                   : "text-gray-700 hover:text-red-600 transition"
+//               }
+//             >
+//               {link.label}
+//             </NavLink>
+//           ))}
+
+//           {!user ? (
+//             <>
+//               <NavLink to="/login" className="text-gray-700 hover:text-red-600 transition">
+//                 Login
+//               </NavLink>
+//               <NavLink
+//                 to="/register"
+//                 className="bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition"
+//               >
+//                 Register
+//               </NavLink>
+//             </>
+//           ) : (
+//             <div className="relative">
+//               <button
+//                 onClick={() => setDropdownOpen(!dropdownOpen)}
+//                 className="flex items-center gap-2 focus:outline-none"
+//               >
+//                 {user.avatar ? (
+//                   <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full border" />
+//                 ) : (
+//                   <div className="w-8 h-8 flex items-center justify-center rounded-full bg-red-600 text-white font-bold">
+//                     {user.username?.charAt(0).toUpperCase()}
+//                   </div>
+//                 )}
+//                 <span className="text-gray-700 font-medium">{user.username}</span>
+//               </button>
+
+//               {dropdownOpen && (
+//                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 z-50">
+//                   {(roleLinks[user.role] || []).map((link) => (
+//                     <NavLink
+//                       key={link.to}
+//                       to={link.to}
+//                       className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-red-600 transition"
+//                       onClick={() => setDropdownOpen(false)}
+//                     >
+//                       {link.label}
+//                     </NavLink>
+//                   ))}
+//                   <button
+//                     onClick={() => {
+//                       logout();
+//                       setDropdownOpen(false);
+//                     }}
+//                     className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-red-600 transition"
+//                   >
+//                     Logout
+//                   </button>
+//                 </div>
+//               )}
+//             </div>
+//           )}
+//         </div>
+
+//         {/* Mobile Menu Button */}
+//         <button
+//           className="md:hidden text-gray-700 focus:outline-none"
+//           onClick={() => setIsOpen(!isOpen)}
+//         >
+//           {isOpen ? "✖" : "☰"}
+//         </button>
+//       </nav>
+
+//       {/* Mobile Menu */}
+//       {isOpen && (
+//         <div className="md:hidden bg-white shadow-lg border-t">
+//           <div className="px-4 py-3 space-y-2">
+//             {navLinks.map((link) => (
+//               <NavLink
+//                 key={link.to}
+//                 to={link.to}
+//                 className="block text-gray-700 hover:text-red-600 transition"
+//                 onClick={() => setIsOpen(false)}
+//               >
+//                 {link.label}
+//               </NavLink>
+//             ))}
+
+//             {user ? (
+//               <>
+//                 {(roleLinks[user.role] || []).map((link) => (
+//                   <NavLink
+//                     key={link.to}
+//                     to={link.to}
+//                     className="block text-gray-700 hover:text-red-600 transition"
+//                     onClick={() => setIsOpen(false)}
+//                   >
+//                     {link.label}
+//                   </NavLink>
+//                 ))}
+//                 <button
+//                   onClick={() => {
+//                     logout();
+//                     setIsOpen(false);
+//                   }}
+//                   className="block w-full text-left text-gray-700 hover:text-red-600 transition"
+//                 >
+//                   Logout
+//                 </button>
+//               </>
+//             ) : (
+//               <>
+//                 <NavLink
+//                   to="/login"
+//                   className="block text-gray-700 hover:text-red-600 transition"
+//                   onClick={() => setIsOpen(false)}
+//                 >
+//                   Login
+//                 </NavLink>
+//                 <NavLink
+//                   to="/register"
+//                   className="block bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition"
+//                   onClick={() => setIsOpen(false)}
+//                 >
+//                   Register
+//                 </NavLink>
+//               </>
+//             )}
+//           </div>
+//         </div>
+//       )}
+//     </header>
+//   );
+// }
 
 
 
