@@ -2,26 +2,71 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { connectDB, disconnectDB } from "./src/config/db.js";
+import morgan from "morgan";
+import * as rfs from "rotating-file-stream";
+import path from "path";
+import { fileURLToPath } from "url";
+import { v4 as uuidv4 } from "uuid"; // NEW
+import { connectDB, disconnectDB } from "./config/db.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { validateEnv } from "./config/validateEnv.js";
 
-// Import routes
-import authRoutes from "./src/routes/auth.js";   // keep naming consistent
-import userRoutes from "./src/routes/userRoutes.js";
-import jobsRouter from "./src/routes/jobs.js";
+// ✅ Import route modules
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import jobRoutes from "./routes/jobRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import reportsRoutes from "./routes/reportsRoutes.js";
+import applicationRoutes from "./routes/applicationRoutes.js";
+import recruiterRoutes from "./routes/recruiterRoutes.js";
+import healthRoutes from "./routes/healthRoutes.js";
 
+// ✅ Load and validate environment variables
 dotenv.config();
+const env = validateEnv(process.env);
 
 const app = express();
+
+// ✅ Setup rotating log streams
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const accessLogStream = rfs.createStream("access.log", {
+  interval: "1d", // rotate daily
+  path: path.join(__dirname, "logs"),
+});
+
+const errorLogStream = rfs.createStream("error.log", {
+  interval: "1d", // rotate daily
+  path: path.join(__dirname, "logs"),
+});
 
 // ✅ Middleware
 app.use(express.json());
 app.use(cookieParser());
 
+// ✅ Request ID middleware
+app.use((req, res, next) => {
+  req.id = uuidv4(); // assign unique ID
+  next();
+});
+
+// ✅ Request logging (console + file)
+morgan.token("id", (req) => req.id); // add custom token
+app.use(morgan(":id :method :url :status :response-time ms", { stream: accessLogStream }));
+app.use(morgan("dev")); // console logs
+app.use(
+  morgan("combined", {
+    skip: (req, res) => res.statusCode < 400,
+    stream: errorLogStream,
+  })
+);
+
 // ✅ CORS setup
 app.use(
   cors({
-    origin: process.env.CLIENT_URL, // e.g. http://localhost:5173
-    credentials: true,              // allow cookies (refresh token)
+    origin: env.CLIENT_URL,
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -34,15 +79,23 @@ connectDB();
 app.get("/", (req, res) => res.send("WorkConnect Albania API"));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/jobs", jobsRouter);
+app.use("/api/jobs", jobRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/reports", reportsRoutes);
+app.use("/api/applications", applicationRoutes);
+app.use("/api/recruiter", recruiterRoutes);
+app.use("/api/health", healthRoutes);
+
+// ✅ Centralized error handler
+app.use(errorHandler);
 
 // ✅ Start server
-const PORT = process.env.PORT || 5000;
+const PORT = env.PORT;
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 
-// ✅ Graceful shutdown handlers
+// ✅ Graceful shutdown
 process.on("SIGINT", async () => {
   console.log("🔻 SIGINT received. Closing server...");
   server.close(async () => {
@@ -60,218 +113,3 @@ process.on("SIGTERM", async () => {
 });
 
 
-
-
-
-
-
-
-
-
-// require('dotenv').config();
-// const express = require('express');
-// const cors = require('cors');
-// const cookieParser = require('cookie-parser');
-// const { connectDB, disconnectDB } = require('./src/config/db');
-
-// // Import routes
-// const authRoutes = require('./src/routes/authRoutes');
-// const userRoutes = require('./src/routes/userRoutes');
-// const jobsRouter = require('./src/routes/jobs');
-
-// const app = express();
-
-// // Middleware
-// app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
-// app.use(cookieParser());
-// app.use(express.json());
-
-// // Connect to DB
-// connectDB();
-
-// // Routes
-// app.get('/', (req, res) => res.send('WorkConnect Albania API'));
-// app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
-// app.use('/api/jobs', jobsRouter);
-
-// // Start server
-// const PORT = process.env.PORT || 5000;
-// const server = app.listen(PORT, () => {
-//   console.log(`🚀 Server running on port ${PORT}`);
-// });
-
-// // Graceful shutdown handlers
-// process.on('SIGINT', async () => {
-//   console.log('🔻 SIGINT received. Closing server...');
-//   server.close(async () => {
-//     await disconnectDB();
-//     process.exit(0);
-//   });
-// });
-
-// process.on('SIGTERM', async () => {
-//   console.log('🔻 SIGTERM received. Closing server...');
-//   server.close(async () => {
-//     await disconnectDB();
-//     process.exit(0);
-//   });
-// });
-
-
-
-
-
-
-
-
-
-// require('dotenv').config();
-// const express = require('express');
-// const cors = require('cors');
-// const cookieParser = require('cookie-parser');
-// const { connectDB, disconnectDB } = require('./src/config/db');
-
-// const app = express();
-
-// // middleware
-// app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
-// app.use(cookieParser());
-// app.use(express.json());
-
-// // connect to DB
-// connectDB();
-
-// // start server
-// const PORT = process.env.PORT || 5000;
-// const server = app.listen(PORT, () => {
-//   console.log(`🚀 Server running on port ${PORT}`);
-// });
-
-// // Graceful shutdown handlers
-// process.on('SIGINT', async () => {
-//   console.log('🔻 SIGINT received. Closing server...');
-//   server.close(async () => {
-//     await disconnectDB();
-//     process.exit(0);
-//   });
-// });
-
-// process.on('SIGTERM', async () => {
-//   console.log('🔻 SIGTERM received. Closing server...');
-//   server.close(async () => {
-//     await disconnectDB();
-//     process.exit(0);
-//   });
-// });
-
-
-
-
-
-
-
-
-
-// require('dotenv').config();
-// const express = require('express');
-// const cors = require('cors');
-// const cookieParser = require('cookie-parser');
-// const connectDB = require('./src/config/db'); // import connection
-
-// const app = express();
-
-// // middleware
-// app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
-// app.use(cookieParser());
-// app.use(express.json());
-
-// // connect to DB
-// connectDB();
-
-// // start server
-// const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => {
-//   console.log(`🚀 Server running on port ${PORT}`);
-// });
-
-
-
-
-
-
-
-
-
-// import express from 'express';
-// import cors from 'cors';
-// import cookieParser from 'cookie-parser';
-// import dotenv from 'dotenv';
-// import { connectDB } from './config/db.js';
-// import authRoutes from './routes/authRoutes.js';
-// import userRoutes from './routes/userRoutes.js';
-
-// dotenv.config();
-
-// // ✅ Environment variables
-// const PORT = process.env.PORT || 5000;
-// const MONGO_URI = process.env.MONGO_URI;
-// const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
-// const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
-// const CLIENT_URL = process.env.CLIENT_URL;
-// const COOKIE_SECURE = process.env.COOKIE_SECURE === "true";
-
-// const app = express();
-
-// app.use(express.json());
-// app.use(cookieParser());
-// app.use(
-//   cors({
-//     origin: CLIENT_URL,
-//     credentials: true
-//   })
-// );
-
-// connectDB();
-
-// app.get('/', (req, res) => res.send('WorkConnect Albania API'));
-// app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
-
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-
-
-
-
-
-
-
-// import express from 'express';
-// import cors from 'cors';
-// import cookieParser from 'cookie-parser';
-// import dotenv from 'dotenv';
-// import { connectDB } from './config/db.js';
-// import authRoutes from './routes/authRoutes.js';
-// import userRoutes from './routes/userRoutes.js';
-
-// dotenv.config();
-// const app = express();
-
-// app.use(express.json());
-// app.use(cookieParser());
-// app.use(
-//   cors({
-//     origin: process.env.CLIENT_URL,
-//     credentials: true
-//   })
-// );
-
-// connectDB();
-
-// app.get('/', (req, res) => res.send('WorkConnect Albania API'));
-// app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
-
-// const port = process.env.PORT || 5000;
-// app.listen(port, () => console.log(`Server running on port ${port}`));
