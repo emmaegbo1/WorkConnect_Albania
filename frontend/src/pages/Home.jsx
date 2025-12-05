@@ -35,11 +35,20 @@ const Home = () => {
         <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
           WorkConnect ALBANIA helps foreign workers find trusted opportunities, guidance, and community support.
         </p>
+        
         <Link
           to="/jobs"
-          className="bg-red-600 text-white px-6 py-3 rounded-lg shadow hover:bg-red-700 transition"
+          className="bg-red-600 text-white px-6 py-3 rounded-lg shadow hover:bg-red-700 transition mr-4"
         >
           Find a Job
+        </Link>
+
+        {/* Post a Job Button */}
+        <Link
+          to="/jobs"
+          className="bg-red-600 text-white px-6 py-3 rounded-lg shadow hover:bg-red-700 transition ml-4"
+        >
+          Post a Job
         </Link>
       </section>
 

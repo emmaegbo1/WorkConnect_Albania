@@ -30,6 +30,8 @@ import Reports from "./pages/Reports";
 // Profile page
 import Profile from "./pages/Profile";
 
+import Unauthorized from "./pages/Unauthorized";
+
 export default function App() {
   return (
     <>
@@ -121,7 +123,7 @@ export default function App() {
         />
 
         {/* Unauthorized fallback */}
-        <Route path="/unauthorized" element={<h2>Access Denied</h2>} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
       </Routes>
       <Footer />
     </>

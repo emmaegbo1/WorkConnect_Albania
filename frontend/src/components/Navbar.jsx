@@ -1,12 +1,13 @@
 // src/components/Navbar.jsx
 import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navLinks = [
     { to: "/", label: "Home" },
@@ -15,6 +16,14 @@ export default function Navbar() {
     { to: "/about", label: "About Us" },
     { to: "/contact", label: "Contact" },
   ];
+
+  // Centralized logout handler
+  const handleLogout = async () => {
+    await logout();
+    setDropdownOpen(false);
+    setIsOpen(false);
+    navigate("/login"); // redirect after logout
+  };
 
   return (
     <header className="bg-white shadow-md fixed w-full top-0 z-50 border-b">
@@ -57,7 +66,8 @@ export default function Navbar() {
               {/* Greeting / Avatar toggle */}
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 focus:outline-none"
+                aria-expanded={dropdownOpen}
+                className="flex items-center gap-2 focus:outline-none cursor-pointer"
               >
                 {user.avatar ? (
                   <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full border" />
@@ -80,25 +90,45 @@ export default function Navbar() {
               {/* Dropdown menu */}
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg py-2 z-50">
-                  <NavLink to="/profile" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                  <NavLink
+                    to="/profile"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
                     My Profile
                   </NavLink>
-                  <NavLink to="/settings" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                  <NavLink
+                    to="/settings"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
                     Settings
                   </NavLink>
 
                   {user.role === "candidate" && (
-                    <NavLink to="/jobs" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                    <NavLink
+                      to="/jobs"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                      onClick={() => setDropdownOpen(false)}
+                    >
                       Apply
                     </NavLink>
                   )}
 
                   {(user.role === "recruiter" || user.role === "admin") && (
                     <>
-                      <NavLink to="/dashboard" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                      <NavLink
+                        to="/dashboard"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
                         Dashboard
                       </NavLink>
-                      <NavLink to="/jobs/post" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                      <NavLink
+                        to="/jobs/post"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
                         Post Job
                       </NavLink>
                     </>
@@ -106,24 +136,33 @@ export default function Navbar() {
 
                   {user.role === "admin" && (
                     <>
-                      <NavLink to="/admin/manage-jobs" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                      <NavLink
+                        to="/admin/manage-jobs"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
                         Manage Jobs
                       </NavLink>
-                      <NavLink to="/admin/reports" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                      <NavLink
+                        to="/admin/reports"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
                         Reports
                       </NavLink>
-                      <NavLink to="/admin/users" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                      <NavLink
+                        to="/admin/users"
+                        className="block px-4 py-2 hover:bg-gray-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
                         Users
                       </NavLink>
                     </>
                   )}
 
                   <button
-                    onClick={() => {
-                      logout();
-                      setDropdownOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition"
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition cursor-pointer"
                   >
                     Logout
                   </button>
@@ -135,7 +174,8 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden text-gray-700 focus:outline-none"
+          className="md:hidden text-gray-700 focus:outline-none cursor-pointer"
+          aria-label="Toggle menu"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? "✖" : "☰"}
@@ -159,25 +199,45 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <NavLink to="/profile" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                <NavLink
+                  to="/profile"
+                  className="block text-gray-700 hover:text-red-600 transition"
+                  onClick={() => setIsOpen(false)}
+                >
                   My Profile
                 </NavLink>
-                <NavLink to="/settings" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                <NavLink
+                  to="/settings"
+                  className="block text-gray-700 hover:text-red-600 transition"
+                  onClick={() => setIsOpen(false)}
+                >
                   Settings
                 </NavLink>
 
                 {user.role === "candidate" && (
-                  <NavLink to="/jobs" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                  <NavLink
+                    to="/jobs"
+                    className="block text-gray-700 hover:text-red-600 transition"
+                    onClick={() => setIsOpen(false)}
+                  >
                     Apply
                   </NavLink>
                 )}
 
                 {(user.role === "recruiter" || user.role === "admin") && (
                   <>
-                    <NavLink to="/dashboard" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                    <NavLink
+                      to="/dashboard"
+                      className="block text-gray-700 hover:text-red-600 transition"
+                      onClick={() => setIsOpen(false)}
+                    >
                       Dashboard
                     </NavLink>
-                    <NavLink to="/jobs/post" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                    <NavLink
+                      to="/jobs/post"
+                      className="block text-gray-700 hover:text-red-600 transition"
+                      onClick={() => setIsOpen(false)}
+                    >
                       Post Job
                     </NavLink>
                   </>
@@ -185,34 +245,51 @@ export default function Navbar() {
 
                 {user.role === "admin" && (
                   <>
-                    <NavLink to="/admin/manage-jobs" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                    <NavLink
+                      to="/admin/manage-jobs"
+                      className="block text-gray-700 hover:text-red-600 transition"
+                      onClick={() => setIsOpen(false)}
+                    >
                       Manage Jobs
                     </NavLink>
-                    <NavLink to="/admin/reports" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                    <NavLink
+                      to="/admin/reports"
+                      className="block text-gray-700 hover:text-red-600 transition"
+                      onClick={() => setIsOpen(false)}
+                    >
                       Reports
                     </NavLink>
-                    <NavLink to="/admin/users" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                    <NavLink
+                      to="/admin/users"
+                      className="block text-gray-700 hover:text-red-600 transition"
+                      onClick={() => setIsOpen(false)}
+                    >
                       Users
                     </NavLink>
                   </>
                 )}
 
                 <button
-                  onClick={() => {
-                    logout();
-                    setIsOpen(false);
-                  }}
-                  className="block w-full text-left text-red-600 hover:bg-gray-100 transition"
+                  onClick={handleLogout}
+                  className="block w-full text-left text-red-600 hover:bg-gray-100 transition cursor-pointer"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <NavLink to="/login" className="block text-gray-700 hover:text-red-600 transition" onClick={() => setIsOpen(false)}>
+                <NavLink
+                  to="/login"
+                  className="block text-gray-700 hover:text-red-600 transition"
+                  onClick={() => setIsOpen(false)}
+                >
                   Login
                 </NavLink>
-                <NavLink to="/register" className="block bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition" onClick={() => setIsOpen(false)}>
+                <NavLink
+                  to="/register"
+                  className="block bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition"
+                  onClick={() => setIsOpen(false)}
+                >
                   Register
                 </NavLink>
               </>
@@ -222,4 +299,4 @@ export default function Navbar() {
       )}
     </header>
   );
-};
+}
